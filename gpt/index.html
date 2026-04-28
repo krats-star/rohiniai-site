@@ -50,7 +50,6 @@
       letter-spacing: 0;
     }
     .lead { margin: 14px auto 0; color: var(--text); font-size: 17px; line-height: 1.42; max-width: 340px; }
-    .note { margin: 18px 0 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
     .steps { margin: 20px 0 0; display: grid; gap: 10px; text-align: left; }
     .step {
       display: grid;
@@ -76,20 +75,18 @@
       font-size: 13px;
     }
     .actions { margin-top: 22px; display: grid; gap: 11px; }
-    button, a.button {
+    button {
       width: 100%;
       min-height: 56px;
       border-radius: 10px;
       font: inherit;
       font-weight: 850;
       cursor: pointer;
-      text-decoration: none;
       display: grid;
       place-items: center;
       padding: 0 16px;
     }
     .primary { border: 0; background: linear-gradient(180deg, #ffe49d, var(--gold2)); color: #231104; box-shadow: 0 12px 34px rgba(239, 184, 79, 0.22); }
-    .secondary { border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07); color: var(--text); }
     .status {
       display: none;
       margin-top: 16px;
@@ -132,12 +129,10 @@
       </div>
       <div class="actions">
         <button class="primary" id="copyBtn" type="button">Copy GPT Link</button>
-        <a class="button secondary" id="directOpen" href="#" rel="noopener">Open GPT directly</a>
       </div>
       <div class="status" id="status" role="status" aria-live="polite">
         Link copied. Open your browser, paste this link, and log in to your ChatGPT account to start your free personalized chart reading.
       </div>
-      <p class="note">If Instagram opens links inside its own browser, copying the link first is usually clearer.</p>
       <div class="raw-link" id="rawLink"></div>
     </section>
     <footer><a href="/privacy">Privacy Policy</a> &nbsp;|&nbsp; <a href="/delete">Data Deletion Policy</a></footer>
@@ -145,10 +140,8 @@
   <script>
     const GPT_LINK = "https://chatgpt.com/g/g-68e1221282d0819190c0fc3295607598-rohini-astro-gpt";
     const copyBtn = document.getElementById("copyBtn");
-    const directOpen = document.getElementById("directOpen");
     const statusBox = document.getElementById("status");
     const rawLink = document.getElementById("rawLink");
-    directOpen.href = GPT_LINK;
     rawLink.textContent = GPT_LINK;
     async function copyLink() {
       try {
