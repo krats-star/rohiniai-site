@@ -2,12 +2,10 @@ name = "rohiniai-tracking"
 main = "src/index.js"
 compatibility_date = "2026-05-04"
 
-# After creating the D1 database, replace database_id with the value printed by:
-# wrangler d1 create rohiniai_clicks
 [[d1_databases]]
 binding = "DB"
 database_name = "rohiniai_clicks"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "09a55d44-6dc2-4d12-a5ab-b4252aa50791"
 
 [observability]
 enabled = true
