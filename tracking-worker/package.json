@@ -1,0 +1,15 @@
+{
+  "name": "rohiniai-tracking-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:schema:local": "wrangler d1 execute rohiniai_clicks --local --file=./schema.sql",
+    "db:schema:remote": "wrangler d1 execute rohiniai_clicks --remote --file=./schema.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^4.14.1"
+  }
+}
