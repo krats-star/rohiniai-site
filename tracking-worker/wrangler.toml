@@ -2,6 +2,10 @@ name = "rohiniai-tracking"
 main = "src/index.js"
 compatibility_date = "2026-05-04"
 
+routes = [
+  { pattern = "go.rohiniai.in/*", zone_name = "rohiniai.in" }
+]
+
 [[d1_databases]]
 binding = "DB"
 database_name = "rohiniai_clicks"
