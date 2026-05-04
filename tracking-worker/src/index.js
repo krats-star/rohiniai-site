@@ -1,7 +1,5 @@
 import { AFFILIATE_LINKS, ASTRO_GPT_URL } from "./links.js";
 
-const ONE_DAY_SECONDS = 86400;
-
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -120,15 +118,15 @@ async function handleAdmin(request, env) {
 
   const days = Number(new URL(request.url).searchParams.get("days") || "30");
   const lookbackDays = Number.isFinite(days) ? Math.min(Math.max(days, 1), 365) : 30;
-  const since = new Date(Date.now() - lookbackDays * ONE_DAY_SECONDS * 1000).toISOString();
+  const lookbackParam = `-${lookbackDays} days`;
 
   const [summary, topLinks, indiaStates, countries, devices, daily] = await Promise.all([
-    queryFirst(env, summarySql(), since),
-    queryAll(env, topLinksSql(), since),
-    queryAll(env, indiaStatesSql(), since),
-    queryAll(env, countriesSql(), since),
-    queryAll(env, devicesSql(), since),
-    queryAll(env, dailySql(), since)
+    queryFirst(env, summarySql(), lookbackParam),
+    queryAll(env, topLinksSql(), lookbackParam),
+    queryAll(env, indiaStatesSql(), lookbackParam),
+    queryAll(env, countriesSql(), lookbackParam),
+    queryAll(env, devicesSql(), lookbackParam),
+    queryAll(env, dailySql(), lookbackParam)
   ]);
 
   const gptOpens = summary?.gpt_opens || 0;
@@ -172,13 +170,13 @@ function summarySql() {
     COUNT(DISTINCT CASE WHEN click_type = 'gpt_open' THEN visitor_hash END) AS unique_gpt_opens,
     SUM(CASE WHEN click_type = 'affiliate_click' THEN 1 ELSE 0 END) AS affiliate_clicks
     FROM click_events
-    WHERE created_at >= ?`;
+    WHERE created_at >= datetime('now', ?)`;
 }
 
 function topLinksSql() {
   return `SELECT destination_label, slug, COUNT(*) AS clicks
     FROM click_events
-    WHERE created_at >= ? AND click_type = 'affiliate_click'
+    WHERE created_at >= datetime('now', ?) AND click_type = 'affiliate_click'
     GROUP BY destination_label, slug
     ORDER BY clicks DESC
     LIMIT 10`;
@@ -187,7 +185,7 @@ function topLinksSql() {
 function indiaStatesSql() {
   return `SELECT COALESCE(region, 'Unknown') AS region, COUNT(*) AS clicks
     FROM click_events
-    WHERE created_at >= ? AND country = 'IN'
+    WHERE created_at >= datetime('now', ?) AND country = 'IN'
     GROUP BY region
     ORDER BY clicks DESC
     LIMIT 15`;
@@ -196,7 +194,7 @@ function indiaStatesSql() {
 function countriesSql() {
   return `SELECT COALESCE(country, 'Unknown') AS country, COUNT(*) AS clicks
     FROM click_events
-    WHERE created_at >= ?
+    WHERE created_at >= datetime('now', ?)
     GROUP BY country
     ORDER BY clicks DESC
     LIMIT 15`;
@@ -205,7 +203,7 @@ function countriesSql() {
 function devicesSql() {
   return `SELECT COALESCE(device, 'unknown') AS device, COUNT(*) AS clicks
     FROM click_events
-    WHERE created_at >= ?
+    WHERE created_at >= datetime('now', ?)
     GROUP BY device
     ORDER BY clicks DESC`;
 }
@@ -215,20 +213,20 @@ function dailySql() {
     SUM(CASE WHEN click_type = 'gpt_open' THEN 1 ELSE 0 END) AS gpt_opens,
     SUM(CASE WHEN click_type = 'affiliate_click' THEN 1 ELSE 0 END) AS affiliate_clicks
     FROM click_events
-    WHERE created_at >= ?
+    WHERE created_at >= datetime('now', ?)
     GROUP BY date
     ORDER BY date DESC
     LIMIT 30`;
 }
 
-async function queryFirst(env, sql, since) {
+async function queryFirst(env, sql, lookbackParam) {
   if (!env.DB) return null;
-  return env.DB.prepare(sql).bind(since).first();
+  return env.DB.prepare(sql).bind(lookbackParam).first();
 }
 
-async function queryAll(env, sql, since) {
+async function queryAll(env, sql, lookbackParam) {
   if (!env.DB) return [];
-  const result = await env.DB.prepare(sql).bind(since).all();
+  const result = await env.DB.prepare(sql).bind(lookbackParam).all();
   return result.results || [];
 }
 
